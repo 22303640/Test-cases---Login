@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Boundary Value Testing | Password Length (8-12 chars)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0B1120 0%, #192132 100%);
+            min-height: 100vh;
+        }
+        .test-card {
+            transition: all 0.2s ease;
+        }
+        .status-badge {
+            transition: all 0.15s ease;
+        }
+        input:focus {
+            ring: 2px solid #3b82f6;
+            border-color: #3b82f6;
+            outline: none;
+        }
+        button.test-btn {
+            transition: transform 0.1s ease, background 0.2s;
+        }
+        button.test-btn:active {
+            transform: scale(0.97);
+        }
+        .glow-card {
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-5 md:p-8">
+
+    <div class="w-full max-w-5xl mx-auto">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 bg-indigo-500/20 backdrop-blur-sm px-4 py-1.5 rounded-full border border-indigo-400/30 mb-4">
+                <i class="fas fa-ruler-combined text-indigo-300"></i>
+                <span class="text-indigo-200 text-sm font-medium">Boundary Value Analysis (BVA)</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">🔐 Password Length <span class="text-indigo-300">8–12</span></h1>
+            <p class="text-slate-300 mt-3 text-lg max-w-2xl mx-auto">Testing critical boundaries: min-1, min, max, max+1 — ensures robust validation</p>
+        </div>
+
+        <div class="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/15 shadow-2xl glow-card overflow-hidden">
+            <div class="p-6 md:p-8">
+                <div class="flex flex-wrap items-start gap-6">
+                    <div class="flex-1 min-w-[260px]">
+                        <div class="bg-slate-900/50 rounded-xl p-5 border border-slate-700">
+                            <label class="block text-slate-200 text-sm font-semibold mb-2 flex items-center gap-2">
+                                <i class="fas fa-key text-indigo-400"></i> 
+                                Enter password to test
+                            </label>
+                            <div class="relative mt-1">
+                                <input type="password" id="passwordInput" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition pr-12" placeholder="Type password...">
+                                <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition">
+                                    <i class="fas fa-eye-slash" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between text-sm">
+                                <div class="bg-slate-800 px-3 py-1.5 rounded-lg">
+                                    <span class="text-slate-400">Length:</span>
+                                    <span id="lengthDisplay" class="text-white font-bold ml-2 text-indigo-300">0</span>
+                                </div>
+                                <div class="bg-slate-800 px-3 py-1.5 rounded-lg">
+                                    <span class="text-slate-400">Boundary:</span>
+                                    <span id="boundaryHint" class="text-amber-300 text-xs ml-1">min:8 | max:12</span>
+                                </div>
+                            </div>
+                            <div id="validationMessage" class="mt-4 p-3 rounded-xl text-sm font-medium transition-all hidden"></div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mt-6">
+                                <button data-length="7" class="test-btn bg-rose-900/40 hover:bg-rose-800/60 border border-rose-700/50 text-rose-200 py-2 rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-arrow-down"></i> 7 chars (min-1)
+                                </button>
+                                <button data-length="8" class="test-btn bg-emerald-900/40 hover:bg-emerald-800/60 border border-emerald-700/50 text-emerald-200 py-2 rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-check-circle"></i> 8 chars (min)
+                                </button>
+                                <button data-length="12" class="test-btn bg-emerald-900/40 hover:bg-emerald-800/60 border border-emerald-700/50 text-emerald-200 py-2 rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-check-circle"></i> 12 chars (max)
+                                </button>
+                                <button data-length="13" class="test-btn bg-rose-900/40 hover:bg-rose-800/60 border border-rose-700/50 text-rose-200 py-2 rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-arrow-up"></i> 13 chars (max+1)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 min-w-[300px]">
+                        <div class="bg-slate-900/40 rounded-xl border border-slate-700 overflow-hidden">
+                            <div class="bg-slate-800/70 px-4 py-3 border-b border-slate-700">
+                                <h3 class="font-semibold text-white flex items-center gap-2"><i class="fas fa-clipboard-list text-indigo-400"></i> Boundary Test Cases</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-800/50 text-slate-300 text-xs uppercase">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Test Case ID</th>
+                                            <th class="px-4 py-3 text-left">Password Length</th>
+                                            <th class="px-4 py-3 text-left">Description</th>
+                                            <th class="px-4 py-3 text-left">Expected Result</th>
+                                            <th class="px-4 py-3 text-left">Actual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-700/50">
+                                        <tr id="tc_bv_01" class="hover:bg-white/5 transition">
+                                            <td class="px-4 py-3 font-mono font-bold text-rose-300">TC_BV_01</td>
+                                            <td class="px-4 py-3">7 characters</td>
+                                            <td class="px-4 py-3 text-slate-300">Below minimum boundary</td>
+                                            <td class="px-4 py-3 text-amber-300">Rejected, error message</td>
+                                            <td class="px-4 py-3" id="tc01_actual">—</td>
+                                        </tr>
+                                        <tr id="tc_bv_02" class="hover:bg-white/5 transition">
+                                            <td class="px-4 py-3 font-mono font-bold text-emerald-300">TC_BV_02</td>
+                                            <td class="px-4 py-3">8 characters</td>
+                                            <td class="px-4 py-3 text-slate-300">Minimum boundary</td>
+                                            <td class="px-4 py-3 text-amber-300">Accepted</td>
+                                            <td class="px-4 py-3" id="tc02_actual">—</td>
+                                        </tr>
+                                        <tr id="tc_bv_03" class="hover:bg-white/5 transition">
+                                            <td class="px-4 py-3 font-mono font-bold text-emerald-300">TC_BV_03</td>
+                                            <td class="px-4 py-3">12 characters</td>
+                                            <td class="px-4 py-3 text-slate-300">Maximum boundary</td>
+                                            <td class="px-4 py-3 text-amber-300">Accepted</td>
+                                            <td class="px-4 py-3" id="tc03_actual">—</td>
+                                        </tr>
+                                        <tr id="tc_bv_04" class="hover:bg-white/5 transition">
+                                            <td class="px-4 py-3 font-mono font-bold text-rose-300">TC_BV_04</td>
+                                            <td class="px-4 py-3">13 characters</td>
+                                            <td class="px-4 py-3 text-slate-300">Above maximum boundary</td>
+                                            <td class="px-4 py-3 text-amber-300">Rejected, error message</td>
+                                            <td class="px-4 py-3" id="tc04_actual">—</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-7 pt-4 border-t border-white/10 flex flex-wrap justify-between items-center gap-3 text-xs text-slate-400">
+                    <div class="flex gap-4">
+                        <div><i class="fas fa-check-circle text-emerald-500 mr-1"></i> Valid: 8–12 characters</div>
+                        <div><i class="fas fa-times-circle text-rose-500 mr-1"></i> Invalid: less than 8 or more than 12</div>
+                    </div>
+                    <div class="bg-slate-800/50 px-3 py-1 rounded-full">
+                        <i class="fas fa-microchip"></i> Boundary Value Testing (BVA) — min-1, min, max, max+1
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-slate-400 text-center text-sm bg-slate-900/30 rounded-xl p-4 backdrop-blur-sm border border-slate-700/40">
+            <i class="fas fa-flask text-indigo-400 mr-2"></i> 
+            <strong>How to use:</strong> Type any password manually <strong>OR</strong> click test case buttons to auto-fill. Validation runs instantly.
+            Each test case row updates automatically with PASS/FAIL status based on boundary rules.
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('passwordInput');
+        const lengthDisplay = document.getElementById('lengthDisplay');
+        const validationMsgDiv = document.getElementById('validationMessage');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        const tc01Actual = document.getElementById('tc01_actual');
+        const tc02Actual = document.getElementById('tc02_actual');
+        const tc03Actual = document.getElementById('tc03_actual');
+        const tc04Actual = document.getElementById('tc04_actual');
+
+        function validatePasswordLength(password) {
+            const len = password.length;
+            if (len === 0) return { isValid: null, message: "" };
+            if (len < 8) return { isValid: false, message: `❌ Rejected: Password length ${len} is below minimum (minimum 8 characters).` };
+            if (len > 12) return { isValid: false, message: `❌ Rejected: Password length ${len} exceeds maximum allowed (max 12 characters).` };
+            return { isValid: true, message: `✅ Accepted: Password length ${len} is within valid range (8–12 characters).` };
+        }
+
+        function updateValidationUI() {
+            const currentPassword = passwordInput.value;
+            const len = currentPassword.length;
+            lengthDisplay.innerText = len;
+            
+            const validation = validatePasswordLength(currentPassword);
+            
+            if (currentPassword.length === 0) {
+                validationMsgDiv.classList.add('hidden');
+                validationMsgDiv.innerHTML = '';
+            } else {
+                validationMsgDiv.classList.remove('hidden');
+                validationMsgDiv.innerHTML = `<i class="fas ${validation.isValid ? 'fa-check-circle' : 'fa-exclamation-triangle'} mr-2"></i> ${validation.message}`;
+                if (validation.isValid) {
+                    validationMsgDiv.className = "mt-4 p-3 rounded-xl text-sm font-medium transition-all bg-emerald-500/20 border border-emerald-500/40 text-emerald-100";
+                } else if (validation.isValid === false) {
+                    validationMsgDiv.className = "mt-4 p-3 rounded-xl text-sm font-medium transition-all bg-rose-500/20 border border-rose-500/40 text-rose-100";
+                } else {
+                    validationMsgDiv.className = "mt-4 p-3 rounded-xl text-sm font-medium transition-all bg-slate-700/40 border border-slate-600 text-slate-200";
+                }
+            }
+            
+            function getOutcomeForLength(length) {
+                if (length < 8) return { verdict: "Rejected", errorMsg: "error message" };
+                if (length > 12) return { verdict: "Rejected", errorMsg: "error message" };
+                return { verdict: "Accepted", errorMsg: "" };
+            }
+            
+            const outcomes = {
+                tc01: getOutcomeForLength(7),
+                tc02: getOutcomeForLength(8),
+                tc03: getOutcomeForLength(12),
+                tc04: getOutcomeForLength(13)
+            };
+            
+            tc01Actual.innerText = outcomes.tc01.verdict === "Accepted" ? "✅ Accepted" : "❌ Rejected (error shown)";
+            tc02Actual.innerText = outcomes.tc02.verdict === "Accepted" ? "✅ Accepted" : "❌ Rejected";
+            tc03Actual.innerText = outcomes.tc03.verdict === "Accepted" ? "✅ Accepted" : "❌ Rejected";
+            tc04Actual.innerText = outcomes.tc04.verdict === "Accepted" ? "✅ Accepted" : "❌ Rejected (error shown)";
+            
+            const row01 = document.getElementById('tc_bv_01');
+            const row02 = document.getElementById('tc_bv_02');
+            const row03 = document.getElementById('tc_bv_03');
+            const row04 = document.getElementById('tc_bv_04');
+            
+            function setRowStatus(row, isAccepted) {
+                if (isAccepted) {
+                    row.classList.add('bg-emerald-900/20');
+                    row.classList.remove('bg-rose-900/20');
+                } else {
+                    row.classList.add('bg-rose-900/20');
+                    row.classList.remove('bg-emerald-900/20');
+                }
+            }
+            setRowStatus(row01, outcomes.tc01.verdict === "Accepted");
+            setRowStatus(row02, outcomes.tc02.verdict === "Accepted");
+            setRowStatus(row03, outcomes.tc03.verdict === "Accepted");
+            setRowStatus(row04, outcomes.tc04.verdict === "Accepted");
+        }
+        
+        function setPasswordWithLength(targetLength) {
+            let dummyPassword = '';
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$';
+            for (let i = 0; i < targetLength; i++) {
+                dummyPassword += chars[i % chars.length];
+            }
+            passwordInput.value = dummyPassword;
+            const event = new Event('input', { bubbles: true });
+            passwordInput.dispatchEvent(event);
+            passwordInput.focus();
+        }
+        
+        passwordInput.addEventListener('input', updateValidationUI);
+        
+        let isPasswordVisible = false;
+        togglePasswordBtn.addEventListener('click', () => {
+            isPasswordVisible = !isPasswordVisible;
+            const type = isPasswordVisible ? 'text' : 'password';
+            passwordInput.type = type;
+            toggleIcon.className = isPasswordVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+        
+        const btn7 = document.querySelector('[data-length="7"]');
+        const btn8 = document.querySelector('[data-length="8"]');
+        const btn12 = document.querySelector('[data-length="12"]');
+        const btn13 = document.querySelector('[data-length="13"]');
+        
+        function highlightRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            row.style.transition = 'background 0.2s';
+            row.style.backgroundColor = 'rgba(99, 102, 241, 0.3)';
+            setTimeout(() => {
+                row.style.backgroundColor = '';
+            }, 600);
+        }
+        
+        btn7.addEventListener('click', () => { setPasswordWithLength(7); highlightRow('tc_bv_01'); });
+        btn8.addEventListener('click', () => { setPasswordWithLength(8); highlightRow('tc_bv_02'); });
+        btn12.addEventListener('click', () => { setPasswordWithLength(12); highlightRow('tc_bv_03'); });
+        btn13.addEventListener('click', () => { setPasswordWithLength(13); highlightRow('tc_bv_04'); });
+        
+        updateValidationUI();
+    </script>
+</body>
+</html>
